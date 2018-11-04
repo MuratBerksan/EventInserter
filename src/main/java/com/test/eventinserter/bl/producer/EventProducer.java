@@ -59,6 +59,7 @@ public class EventProducer {
             terminate();
         }
 
+        // Process the file line by line in order to cope with large files
         try (LineIterator lineIterator = FileUtils.lineIterator(file)) {
             hasMoreItems = lineIterator.hasNext();
             while (hasMoreItems) {
@@ -83,6 +84,8 @@ public class EventProducer {
         waitConsumerToFinish();
     }
 
+    // Wait until the consumer finishes its job
+    // in order to exit the application
     private void waitConsumerToFinish() {
         try {
             logger.info("Waiting all events to be saved");
@@ -97,6 +100,9 @@ public class EventProducer {
         jmsListenerEndpointRegistry.destroy();
     }
 
+    // When a problem occurs with caching
+    // retry for multiple times. If the problem persists
+    // then terminate the application
     private void retryCaching(EventItem eventItem) {
 
         for (int i = 0; i < 10; i++) {
@@ -135,6 +141,7 @@ public class EventProducer {
         }
     }
 
+    // Calculate event and send it to the consumer
     private void sendEvent(EventItem eventItem, Long previousTimestamp) {
         Event event = new Event();
 
@@ -164,6 +171,9 @@ public class EventProducer {
 
     }
 
+    // When a problem occurs with message delivery
+    // retry for multiple times. If the problem persists
+    // then terminate the application
     private void retryMessageDelivery(Event event) {
 
         for (int i = 0; i < 10; i++) {
@@ -192,6 +202,7 @@ public class EventProducer {
         try {
             eventItem = mapper.readValue(json, EventItem.class);
 
+            // Without the id or timestamp the json does not provide any useful information
             if (eventItem.getId() == null || eventItem.getTimestamp() == null) {
                 logger.error("Event id of read line is not present!");
                 return null;
@@ -266,7 +277,7 @@ public class EventProducer {
             return null;
         }
 
-        if(file.length() == 0) {
+        if (file.length() == 0) {
             logger.error("File {} is empty!", args[0]);
             return null;
         }
@@ -274,6 +285,7 @@ public class EventProducer {
         return file;
     }
 
+    // Close JMS containers and exit
     private void terminate() {
         logger.info("Exiting...");
         jmsListenerEndpointRegistry.destroy();

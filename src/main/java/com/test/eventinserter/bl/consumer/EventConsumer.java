@@ -19,6 +19,7 @@ public class EventConsumer {
     @Autowired
     private EventService eventService;
 
+    // Mutex to check if consumer's job is complete
     private Object jobComplete = new Object();
 
     @JmsListener(destination = "events", containerFactory = "jmsListenerContainerFactory")
@@ -32,6 +33,7 @@ public class EventConsumer {
             logger.error("Error saving event to database!", e);
         }
 
+        // If this is the last item notify the main thread that the job is done
         Boolean hasMoreItems = (Boolean) headers.get("hasMoreItems");
         if (!hasMoreItems) {
             synchronized (jobComplete) {

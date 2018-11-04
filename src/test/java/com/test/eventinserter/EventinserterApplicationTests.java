@@ -31,7 +31,7 @@ public class EventinserterApplicationTests {
     EventProducer eventProducer;
 
     @Test
-    public void testDataGenerator() throws IOException {
+    public void should_GenerateFile_WithGivenItemNumber() throws IOException {
         File file = DataGenerator.generateFile(10);
         String fileContent = FileUtils.readFileToString(file, "UTF-8");
         System.out.println(fileContent);
@@ -39,21 +39,21 @@ public class EventinserterApplicationTests {
     }
 
     @Test
-    public void testFileNotProvided() throws Exception {
+    public void should_FileBeNull_IfInputIsEmpty() throws Exception {
         String[] args = {};
         File file = Whitebox.invokeMethod(eventProducer, "validateAndGetFile", (Object) args);
         Assert.assertNull(file);
     }
 
     @Test
-    public void testFileNotExists() throws Exception {
+    public void should_FileBeNull_IfInputDoesNotExist() throws Exception {
         String[] args = {"no_such_file.txt"};
         File file = Whitebox.invokeMethod(eventProducer, "validateAndGetFile", (Object) args);
         Assert.assertNull(file);
     }
 
     @Test
-    public void testEmptyFile() throws Exception {
+    public void should_FileBeNull_IfFileIsEmpty() throws Exception {
         File tmpFile = File.createTempFile("data", "tmp");
         tmpFile.deleteOnExit();
         String[] args = {tmpFile.getAbsolutePath()};
@@ -62,21 +62,21 @@ public class EventinserterApplicationTests {
     }
 
     @Test
-    public void testInputWithNoId() throws Exception {
+    public void should_EventItemBeNull_IfInputDoesNotContainId() throws Exception {
         String input = "{\"state\":\"STARTED\", \"type\":\"APPLICATION_LOG\",\"host\":\"12345\", \"timestamp\":1491377495212}";
         EventItem eventItem = Whitebox.invokeMethod(eventProducer, "validateAndReadJSON", input);
         Assert.assertNull(eventItem);
     }
 
     @Test
-    public void testInvalidInputWithNoId() throws Exception {
+    public void should_EventItemBeNull_IfInputIsInvalidJSON() throws Exception {
         String input = ":\"STARTED\", \"type\":\"APPLICATION_LOG\",\"host\":\"12345\", \"timestamp\":1491377495212}";
         EventItem eventItem = Whitebox.invokeMethod(eventProducer, "validateAndReadJSON", input);
         Assert.assertNull(eventItem);
     }
 
     @Test
-    public void testInvalidInputWithId() throws Exception {
+    public void should_CacheBeEmpty_IfInputIsInvalidJSONWithId() throws Exception {
         String input = "{\"id\":\"scsmbstgra\", \"state\":\"STARTED\", \"type\":\"APPLICATION_LOG\",\"host\":\"12345\", ";
         Cache cache = eventProducer.getCache();
         cache.put("scsmbstgra", 1L);
@@ -87,7 +87,7 @@ public class EventinserterApplicationTests {
 
 
     @Test
-    public void testProducer() throws IOException {
+    public void should_ReturnAllEventsFromDatabase_ForValidInput() throws IOException {
         String input = "{\"id\":\"scsmbstgra\", \"state\":\"STARTED\", \"type\":\"APPLICATION_LOG\",\"host\":\"12345\", \"timestamp\":1491377495212}\n" +
                 "{\"id\":\"scsmbstgrb\", \"state\":\"STARTED\", \"timestamp\":1491377495213}\n" +
                 "{\"id\":\"scsmbstgrc\", \"state\":\"FINISHED\", \"timestamp\":1491377495218}\n" +
@@ -106,7 +106,7 @@ public class EventinserterApplicationTests {
     }
 
     @Test
-    public void testLargeInput() throws IOException {
+    public void should_ProcessAllEventItems_ForLargeFile() throws IOException {
         Integer itemNumber = 40000000;
         File file = DataGenerator.generateFile(itemNumber);
         String[] args = {file.getAbsolutePath()};
