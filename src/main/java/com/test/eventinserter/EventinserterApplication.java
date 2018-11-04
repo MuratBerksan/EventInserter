@@ -29,6 +29,7 @@ public class EventinserterApplication {
         SpringApplication.run(EventinserterApplication.class, args);
         eventProducer.produceEvent(args);
         logger.info("Exiting...");
+        System.exit(0);
     }
 
 

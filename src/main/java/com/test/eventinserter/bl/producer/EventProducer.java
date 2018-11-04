@@ -262,12 +262,12 @@ public class EventProducer {
 
         File file = new File(args[0]);
         if (!file.exists()) {
-            logger.error("File does not exist!");
+            logger.error("File {} does not exist!", args[0]);
             return null;
         }
 
         if(file.length() == 0) {
-            logger.error("File is empty!");
+            logger.error("File {} is empty!", args[0]);
             return null;
         }
 
